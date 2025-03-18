@@ -175,7 +175,7 @@ wp package install ernilambar/site-health-command:@stable
 To install the latest development version of this package, use the following command instead:
 
 ```bash
-wp package install ernilambar/site-health-command:dev-master
+wp package install ernilambar/site-health-command:dev-main
 ```
 
 ## Contributing
