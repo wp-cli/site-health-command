@@ -17,10 +17,14 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "phpstan/extension-installer": true
-        }
+        },
+        "lock": false
     },
     "extra": {
-        "bundled": false,
+        "branch-alias": {
+          "dev-main": "1.x-dev"
+        },
+        "bundled": true,
         "commands": [
             "site-health check",
             "site-health info",
