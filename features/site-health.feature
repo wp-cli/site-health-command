@@ -27,10 +27,6 @@ Feature: Site Health tests
       """
     And STDOUT should contain:
       """
-      "Authorization header",Security,recommended
-      """
-    And STDOUT should contain:
-      """
       "HTTPS status",Security,good
       """
 
@@ -47,6 +43,23 @@ Feature: Site Health tests
       """
       recommended
       """
+    And the return code should be 0
+
+
+  @require-wp-5.6
+  Scenario: Run newer site health checks
+    Given a WP install
+
+    # Ignore "gs: not found" error,
+    # triggered by https://github.com/WordPress/wordpress-develop/blob/8c374a5adb9bee9333a013a575b3aa0e828085be/src/wp-admin/includes/class-wp-debug-data.php#L746
+    When I try `wp site-health check --fields=check,type,status --format=csv`
+
+    # Only added in WordPress 5.6
+    Then STDOUT should contain:
+      """
+      "Authorization header",Security,recommended
+      """
+
     And the return code should be 0
 
   @require-wp-5.4
