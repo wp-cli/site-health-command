@@ -1,5 +1,5 @@
 wp-cli/site-health-command
-==============================
+==========================
 
 
 
@@ -164,19 +164,11 @@ wp site-health status
 
 ## Installing
 
-Installing this package requires WP-CLI v2.11 or greater. Update to the latest stable release with `wp cli update`.
+This package is included with WP-CLI itself, no additional installation necessary.
 
-Once you've done so, you can install the latest stable version of this package with:
+To install the latest version of this package over what's included in WP-CLI, run:
 
-```bash
-wp package install wp-cli/site-health-command:@stable
-```
-
-To install the latest development version of this package, use the following command instead:
-
-```bash
-wp package install wp-cli/site-health-command:dev-main
-```
+    wp package install git@github.com:wp-cli/site-health-command.git
 
 ## Contributing
 
