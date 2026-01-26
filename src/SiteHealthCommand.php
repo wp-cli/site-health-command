@@ -22,7 +22,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 	private $instance;
 
 	/**
-	 * @var array $info Debug info.
+	 * @var array<string, array{label: string, description: string, show_count: bool, private: bool, fields: array<string, array{label: string, value: mixed, debug: string, private: bool}>}>  $info Debug info.
 	 */
 	private $info;
 
@@ -38,6 +38,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-debug-data.php';
 		}
 
+		// @phpstan-ignore assign.propertyType
 		$this->instance = WP_Site_Health::get_instance();
 		$this->info     = WP_Debug_Data::debug_data();
 	}
@@ -75,6 +76,10 @@ class SiteHealthCommand extends WP_CLI_Command {
 	 *     | Plugin Versions   | Security    | recommended | You should remove inactive plugins                       |
 	 *     | Theme Versions    | Security    | recommended | You should remove inactive themes                        |
 	 *     | PHP Version       | Performance | good        | Your site is running the current version of PHP (8.2.18) |
+	 *
+	 * @param string[]                                               $args       Positional arguments. Unused.
+	 * @param array{field?: string, fields?: string, format: string} $assoc_args Associative arguments.
+	 * @return void
 	 */
 	public function check( $args, $assoc_args ) {
 		$fields = array(
@@ -118,6 +123,8 @@ class SiteHealthCommand extends WP_CLI_Command {
 	 *     # Check site health status.
 	 *     $ wp site-health status
 	 *     good
+	 *
+	 * @return void
 	 */
 	public function status() {
 		$site_status = 'good';
@@ -186,6 +193,10 @@ class SiteHealthCommand extends WP_CLI_Command {
 	 *     +------------------------+---------------------+
 	 *
 	 * @subcommand list-info-sections
+	 *
+	 * @param string[]                               $args       Positional arguments. Unused.
+	 * @param array{fields?: string, format: string} $assoc_args Associative arguments.
+	 * @return void
 	 */
 	public function list_info_sections( $args, $assoc_args ) {
 		$fields = array(
@@ -238,6 +249,10 @@ class SiteHealthCommand extends WP_CLI_Command {
 	 *     | WP_SITEURL          | WP_SITEURL          | Undefined | undefined |
 	 *     | WP_MEMORY_LIMIT     | WP_MEMORY_LIMIT     | 40M       |           |
 	 *     | WP_MAX_MEMORY_LIMIT | WP_MAX_MEMORY_LIMIT | 256M      |           |
+	 *
+	 * @param array{1: string}                                                   $args       Section slug.
+	 * @param array{all?: bool, fields?: string, format: string, private?: bool} $assoc_args Associative arguments.
+	 * @return void
 	 */
 	public function info( $args, $assoc_args ) {
 		$section = reset( $args );
@@ -286,7 +301,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 	/**
 	 * Returns info sections.
 	 *
-	 * @return array Info sections.
+	 * @return array<int, array{label: string, section: string}> Info sections.
 	 */
 	private function get_sections() {
 		$sections = [];
@@ -305,7 +320,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 	 * Returns debug info of the section.
 	 *
 	 * @param string $section Section slug.
-	 * @return array Info details.
+	 * @return array<int, array{field: string, section: string, label: string, value: string, debug: string|null, private: bool, value?: float, debug?: bool}> Info details.
 	 */
 	private function get_section_info( $section ) {
 		$details = [];
@@ -315,6 +330,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 		}
 
 		if ( 'wp-paths-sizes' === $section ) {
+			// @phpstan-ignore staticMethod.deprecated
 			$sizes_data = WP_Debug_Data::get_sizes();
 		}
 
@@ -347,8 +363,8 @@ class SiteHealthCommand extends WP_CLI_Command {
 	/**
 	 * Returns check results.
 	 *
-	 * @param array $checks Checks to run.
-	 * @return array Check results.
+	 * @param array<int, array{label: string, test: string, check_type: 'direct'|'async'}> $checks Checks to run.
+	 * @return array<int, array{check: string, status: string, label: string, test: string, description: string, type: string}> Check results.
 	 */
 	private function run_checks( $checks ) {
 		$results = [];
@@ -384,6 +400,9 @@ class SiteHealthCommand extends WP_CLI_Command {
 							);
 						}
 					} elseif ( is_callable( $check['test'] ) ) {
+						/**
+						 * @phpstan-var array{label: string, status: string, badge: array{label: string, color: string}, description: string, actions: string, test: string} $test_result
+						 */
 						$test_result = call_user_func( $check['test'] );
 
 						$result = array_merge(
@@ -400,6 +419,9 @@ class SiteHealthCommand extends WP_CLI_Command {
 				} elseif ( 'async' === $check['check_type'] ) {
 
 					if ( isset( $check['async_direct_test'] ) && is_callable( $check['async_direct_test'] ) ) {
+							/**
+							 * @phpstan-var array{label: string, status: string, badge: array{label: string, color: string}, description: string, actions: string, test: string} $test_result
+							 */
 							$test_result = call_user_func( $check['async_direct_test'] );
 
 							$result = array_merge(
@@ -440,11 +462,17 @@ class SiteHealthCommand extends WP_CLI_Command {
 	/**
 	 * Returns list of checks.
 	 *
-	 * @return array Checks details.
+	 * @return array<int, array{label: string, test: string, check_type: 'direct'|'async'}> Checks details.
 	 */
 	private function get_checks() {
+		/**
+		 * @phpstan-var array<int, array{label: string, test: string, check_type: 'direct'|'async'}> $checks
+		 */
 		$checks = [];
 
+		/**
+		 * @phpstan-var array{direct: array<string, array{label: string, test: string}>, async: array<string, array{label: string, test: string}>} $all_checks
+		 */
 		$all_checks = WP_Site_Health::get_tests();
 
 		if ( empty( $all_checks ) ) {
@@ -463,8 +491,8 @@ class SiteHealthCommand extends WP_CLI_Command {
 	/**
 	 * Returns details of status counts.
 	 *
-	 * @param array $results Check results.
-	 * @return array Count details.
+	 * @param array<int, array{check: string, status: string, label: string, test: string, description: string, type: string}> $results Check results.
+	 * @return array{critical: int, recommended: int, good: int, total: int} Count details.
 	 */
 	private function get_status_count_details( $results ) {
 		$output = [
@@ -482,6 +510,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 	 * Checks whether a section is a valid section.
 	 *
 	 * @param string $section Section slug.
+	 * @return void
 	 */
 	private function validate_section( $section ) {
 		$all_sections = $this->get_sections();
