@@ -1,8 +1,8 @@
 {
-    "name": "ernilambar/site-health-command",
+    "name": "wp-cli/site-health-command",
     "type": "wp-cli-package",
     "description": "",
-    "homepage": "https://github.com/ernilambar/site-health-command",
+    "homepage": "https://github.com/wp-cli/site-health-command",
     "license": "MIT",
     "authors": [],
     "require": {
@@ -53,6 +53,6 @@
         ]
     },
     "support": {
-        "issues": "https://github.com/ernilambar/site-health-command/issues"
+        "issues": "https://github.com/wp-cli/site-health-command/issues"
     }
 }
