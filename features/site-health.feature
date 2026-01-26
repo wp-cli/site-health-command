@@ -19,9 +19,11 @@ Feature: Site Health tests
       """
       "PHP Default Timezone",Performance,good
       """
+    # Prior to WordPress 5.7 this check can fail due to a PHP warning.
+    # See https://core.trac.wordpress.org/changeset/49676
     And STDOUT should contain:
       """
-      "Background updates",Security,good
+      "Background updates",
       """
     And STDOUT should contain:
       """
