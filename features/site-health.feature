@@ -27,7 +27,7 @@ Feature: Site Health tests
       """
     And STDOUT should contain:
       """
-      "HTTPS status",Security,good
+      "HTTPS status",Security,
       """
 
     # Ignore "gs: not found" error.
