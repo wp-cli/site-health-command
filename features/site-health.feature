@@ -4,7 +4,9 @@ Feature: Site Health tests
   Scenario: Run site health checks
     Given a WP install
 
-    When I run `wp site-health check --fields=check,type,status --format=csv`
+    # Ignore "gs: not found" error,
+    # triggered by https://github.com/WordPress/wordpress-develop/blob/8c374a5adb9bee9333a013a575b3aa0e828085be/src/wp-admin/includes/class-wp-debug-data.php#L746
+    When I try `wp site-health check --fields=check,type,status --format=csv`
     Then STDOUT should contain:
       """
       "Plugin Versions",Security,recommended
@@ -30,13 +32,15 @@ Feature: Site Health tests
       "HTTPS status",Security,good
       """
 
-    When I run `wp site-health check --fields=check,status,type --format=csv --status=good`
+    # Ignore "gs: not found" error.
+    When I try `wp site-health check --fields=check,status,type --format=csv --status=good`
     Then STDOUT should not contain:
       """
       ,recommended,
       """
 
-    When I run `wp site-health status`
+    # Ignore "gs: not found" error.
+    When I try `wp site-health status`
     Then STDOUT should be:
       """
       recommended
@@ -47,7 +51,9 @@ Feature: Site Health tests
   Scenario: Site Health Info sections
     Given a WP install
 
-    When I run `wp site-health list-info-sections`
+    # Ignore "gs: not found" error,
+    # triggered by https://github.com/WordPress/wordpress-develop/blob/8c374a5adb9bee9333a013a575b3aa0e828085be/src/wp-admin/includes/class-wp-debug-data.php#L746
+    When I try `wp site-health list-info-sections`
     Then STDOUT should be a table containing rows:
       | label                  | section             |
       | WordPress              | wp-core             |
@@ -70,60 +76,60 @@ Feature: Site Health tests
     Given a WP install
 
     When I try `wp site-health info`
-    Then STDERR should be:
+    Then STDERR should contain:
       """
       Error: Please specify a section, or use the --all flag.
       """
 
     When I try `wp site-health info non-existent-info-section`
-    Then STDERR should be:
+    Then STDERR should contain:
       """
       Error: Invalid section.
       """
 
     When I try `wp site-health info wp-constants --all`
-    Then STDERR should be:
+    Then STDERR should contain:
       """
       Error: Please specify a section, or use the --all flag.
       """
 
-    When I run `wp site-health info wp-constants`
+    When I try `wp site-health info wp-constants`
     Then STDOUT should not contain:
       """
       ABSPATH
       """
 
-    When I run `wp site-health info wp-constants --private`
+    When I try `wp site-health info wp-constants --private`
     Then STDOUT should contain:
       """
       ABSPATH
       """
 
-    When I run `wp site-health info wp-constants --format=csv`
+    When I try `wp site-health info wp-constants --format=csv`
     Then STDOUT should not contain:
       """
       ,private,
       """
 
-    When I run `wp site-health info wp-constants --private --format=csv`
+    When I try `wp site-health info wp-constants --private --format=csv`
     Then STDOUT should contain:
       """
       ,private,
       """
 
-    When I run `wp site-health info wp-constants --fields=field,private,value --format=csv`
+    When I try `wp site-health info wp-constants --fields=field,private,value --format=csv`
     Then STDOUT should contain:
       """
       ,private,
       """
 
-    When I run `wp site-health info wp-paths-sizes`
+    When I try `wp site-health info wp-paths-sizes`
     Then STDOUT should not contain:
       """
       loading
       """
 
-    When I run `wp site-health info wp-constants`
+    When I try `wp site-health info wp-constants`
     Then STDOUT should be a table containing rows:
       | field      | label      | value     | debug     |
       | WP_HOME    | WP_HOME    | Undefined | undefined |
