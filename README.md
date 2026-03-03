@@ -11,6 +11,18 @@ Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contr
 
 This package implements the following commands:
 
+### wp site-health
+
+Manage Site Health
+
+~~~
+wp site-health
+~~~
+
+
+
+
+
 ### wp site-health check
 
 Run site health checks.

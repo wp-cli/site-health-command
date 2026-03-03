@@ -26,6 +26,7 @@
         },
         "bundled": true,
         "commands": [
+            "site-health",
             "site-health check",
             "site-health info",
             "site-health list-info-sections",
