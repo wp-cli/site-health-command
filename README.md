@@ -3,7 +3,7 @@ wp-cli/site-health-command
 
 
 
-[![Testing](https://github.com/wp-cli/site-health-command/actions/workflows/testing.yml/badge.svg)](https://github.com/wp-cli/site-health-command/actions/workflows/testing.yml)
+[![Testing](https://github.com/wp-cli/site-health-command/actions/workflows/testing.yml/badge.svg)](https://github.com/wp-cli/site-health-command/actions/workflows/testing.yml) [![Code Coverage](https://codecov.io/gh/wp-cli/site-health-command/branch/main/graph/badge.svg)](https://codecov.io/gh/wp-cli/site-health-command/tree/main)
 
 Quick links: [Using](#using) | [Installing](#installing) | [Contributing](#contributing) | [Support](#support)
 
@@ -203,6 +203,10 @@ Once you’ve done a bit of searching and discovered there isn’t an open or fi
 Want to contribute a new feature? Please first [open a new issue](https://github.com/wp-cli/site-health-command/issues/new) to discuss whether the feature is a good fit for the project.
 
 Once you've decided to commit the time to seeing your pull request through, [please follow our guidelines for creating a pull request](https://make.wordpress.org/cli/handbook/pull-requests/) to make sure it's a pleasant experience. See "[Setting up](https://make.wordpress.org/cli/handbook/pull-requests/#setting-up)" for details specific to working on this package locally.
+
+### License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Support
 
