@@ -1,5 +1,53 @@
 Feature: Site Health tests
 
+  @less-than-wp-5.2
+  Scenario: Site health commands require WordPress 5.2
+    Given a WP install
+
+    When I try `wp site-health status`
+    Then the return code should be 1
+    And STDERR should contain:
+      """
+      Error: Requires WordPress 5.2 or greater.
+      """
+
+    When I try `wp site-health check`
+    Then the return code should be 1
+    And STDERR should contain:
+      """
+      Error: Requires WordPress 5.2 or greater.
+      """
+
+    When I try `wp site-health list-info-sections`
+    Then the return code should be 1
+    And STDERR should contain:
+      """
+      Error: Requires WordPress 5.2 or greater.
+      """
+
+  @require-wp-5.2
+  Scenario: Site health commands run on WordPress 5.2 and above
+    Given a WP install
+
+    # On WordPress 5.2 and 5.3 this goes through the direct `new WP_Site_Health()`
+    # in the constructor, since WP_Site_Health::get_instance() only arrived in 5.4.
+    # Asserting that the command completes at all is the point: before the fallback
+    # existed it fataled on those versions.
+
+    # Ignore "gs: not found" error,
+    # triggered by https://github.com/WordPress/wordpress-develop/blob/8c374a5adb9bee9333a013a575b3aa0e828085be/src/wp-admin/includes/class-wp-debug-data.php#L746
+    When I try `wp site-health status`
+    Then the return code should be 0
+    And STDOUT should not be empty
+
+    # Ignore "gs: not found" error.
+    When I try `wp site-health check --fields=check,status --format=csv`
+    Then the return code should be 0
+    And STDOUT should contain:
+      """
+      check,status
+      """
+
   @require-wp-5.4
   Scenario: Run site health checks
     Given a WP install

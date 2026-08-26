@@ -38,9 +38,20 @@ class SiteHealthCommand extends WP_CLI_Command {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-debug-data.php';
 		}
 
-		// @phpstan-ignore assign.propertyType
-		$this->instance = WP_Site_Health::get_instance();
-		$this->info     = WP_Debug_Data::debug_data();
+		// WP_Site_Health::get_instance() was only added in WordPress 5.4. The class
+		// itself has been around since 5.2 and its constructor is public, so on 5.2
+		// and 5.3 it can simply be instantiated directly. PHPStan resolves the check
+		// against the current stubs, where the method always exists, but it is what
+		// decides the branch on the older versions this command still supports.
+		// @phpstan-ignore function.alreadyNarrowedType
+		if ( method_exists( 'WP_Site_Health', 'get_instance' ) ) {
+			// @phpstan-ignore assign.propertyType
+			$this->instance = WP_Site_Health::get_instance();
+		} else {
+			$this->instance = new WP_Site_Health();
+		}
+
+		$this->info = WP_Debug_Data::debug_data();
 	}
 
 	/**
@@ -436,8 +447,14 @@ class SiteHealthCommand extends WP_CLI_Command {
 							);
 					}
 
-					if ( false !== strpos( $check['test'], 'authorization-header' ) ) {
-						$test_result = $this->instance->get_test_authorization_header();
+					// get_test_authorization_header() was only added in WordPress 5.6, while
+					// WP_Site_Health itself dates back to 5.2. Kept in a local variable because
+					// that is the shape wp-compat recognises for a method_exists() guard.
+					$site_health = $this->instance;
+
+					if ( false !== strpos( $check['test'], 'authorization-header' )
+						&& method_exists( $site_health, 'get_test_authorization_header' ) ) {
+						$test_result = $site_health->get_test_authorization_header();
 
 						$result = array_merge(
 							$result,
