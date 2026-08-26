@@ -14,17 +14,16 @@ jobs:
   test:
     uses: wp-cli/.github/.github/workflows/reusable-testing.yml@main
     with:
-      # Site Health was introduced in WordPress 5.2, which is what the command
-      # requires. The default base matrix rewrites its 4.9 entry to this value.
-      minimum-wp: 5.2
-      # The command spans several WordPress versions, so test each boundary:
-      # 5.1 is below the requirement and must report it, WP_Site_Health::get_instance()
-      # arrives in 5.4, and the authorization header check in 5.6. 5.2 itself comes
-      # from minimum-wp above, and 5.6 and later are also covered by latest and trunk.
+      # This command spans several WordPress versions, so test each boundary. The
+      # default minimum of 4.9 is below the WordPress 5.2 the command requires, and
+      # covers the version check reporting itself. Of the rest, 5.2 exercises the
+      # direct `new WP_Site_Health()`, 5.4 `WP_Site_Health::get_instance()`, and 5.6
+      # `WP_Site_Health::get_test_authorization_header()`. 5.6 and later are also
+      # covered by latest and trunk.
       matrix: >-
         {
           "include": [
-            { "php": "7.2", "wp": "5.1", "mysql": "mysql-5.6" },
+            { "php": "7.2", "wp": "5.2", "mysql": "mysql-5.6" },
             { "php": "7.2", "wp": "5.4", "mysql": "mysql-5.6" },
             { "php": "7.2", "wp": "5.6", "mysql": "mysql-5.6" }
           ]
