@@ -14,4 +14,12 @@ if ( file_exists( $wpcli_site_health_autoloader ) ) {
 	require_once $wpcli_site_health_autoloader;
 }
 
-WP_CLI::add_command( 'site-health', SiteHealthCommand::class );
+$wpcli_site_health_before_invoke = static function () {
+	// SiteHealthCommand::__construct() calls WP_Site_Health::get_instance(),
+	// which was only introduced in WordPress 5.4.
+	if ( \WP_CLI\Utils\wp_version_compare( '5.4', '<' ) ) {
+		WP_CLI::error( 'Requires WordPress 5.4 or greater.' );
+	}
+};
+
+WP_CLI::add_command( 'site-health', SiteHealthCommand::class, [ 'before_invoke' => $wpcli_site_health_before_invoke ] );

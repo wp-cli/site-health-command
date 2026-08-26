@@ -8,3 +8,22 @@ parameters:
   scanFiles:
     - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
   treatPhpDocTypesAsCertain: false
+  ignoreErrors:
+    # johnbillion/wp-compat checks every WordPress symbol against the WordPress 4.9
+    # baseline that wp-cli-tests configures. It only recognizes function_exists() and
+    # method_exists() guards, so it cannot see the `before_invoke` check in
+    # site-health-command.php that aborts `wp site-health` below WordPress 5.4.
+    #
+    # The entries below match on the message as well as the identifier, naming both the
+    # methods and their version, so a call to anything introduced after WordPress 5.4
+    # keeps being reported. `WP_Site_Health::get_test_authorization_header()` is
+    # WordPress 5.6 and is guarded with method_exists() instead, precisely because a
+    # file-wide ignore here would have hidden it.
+    -
+      identifier: WPCompat.methodNotAvailable
+      message: '#^WP_Site_Health::get_instance\(\) is only available since WordPress version 5\.4\.0\.$#'
+      path: src/SiteHealthCommand.php
+    -
+      identifier: WPCompat.methodNotAvailable
+      message: '#^(WP_Debug_Data::(debug_data|get_sizes)|WP_Site_Health::get_tests)\(\) is only available since WordPress version 5\.2\.0\.$#'
+      path: src/SiteHealthCommand.php

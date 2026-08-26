@@ -436,8 +436,14 @@ class SiteHealthCommand extends WP_CLI_Command {
 							);
 					}
 
-					if ( false !== strpos( $check['test'], 'authorization-header' ) ) {
-						$test_result = $this->instance->get_test_authorization_header();
+					// get_test_authorization_header() was only added in WordPress 5.6, while
+					// WP_Site_Health itself dates back to 5.2. Kept in a local variable because
+					// that is the shape wp-compat recognises for a method_exists() guard.
+					$site_health = $this->instance;
+
+					if ( false !== strpos( $check['test'], 'authorization-header' )
+						&& method_exists( $site_health, 'get_test_authorization_header' ) ) {
+						$test_result = $site_health->get_test_authorization_header();
 
 						$result = array_merge(
 							$result,
