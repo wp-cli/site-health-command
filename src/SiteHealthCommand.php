@@ -38,9 +38,20 @@ class SiteHealthCommand extends WP_CLI_Command {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-debug-data.php';
 		}
 
-		// @phpstan-ignore assign.propertyType
-		$this->instance = WP_Site_Health::get_instance();
-		$this->info     = WP_Debug_Data::debug_data();
+		// WP_Site_Health::get_instance() was only added in WordPress 5.4. The class
+		// itself has been around since 5.2 and its constructor is public, so on 5.2
+		// and 5.3 it can simply be instantiated directly. PHPStan resolves the check
+		// against the current stubs, where the method always exists, but it is what
+		// decides the branch on the older versions this command still supports.
+		// @phpstan-ignore function.alreadyNarrowedType
+		if ( method_exists( 'WP_Site_Health', 'get_instance' ) ) {
+			// @phpstan-ignore assign.propertyType
+			$this->instance = WP_Site_Health::get_instance();
+		} else {
+			$this->instance = new WP_Site_Health();
+		}
+
+		$this->info = WP_Debug_Data::debug_data();
 	}
 
 	/**

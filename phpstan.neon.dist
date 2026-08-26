@@ -10,20 +10,30 @@ parameters:
   treatPhpDocTypesAsCertain: false
   ignoreErrors:
     # johnbillion/wp-compat checks every WordPress symbol against the WordPress 4.9
-    # baseline that wp-cli-tests configures. It only recognizes function_exists() and
-    # method_exists() guards, so it cannot see the `before_invoke` check in
-    # site-health-command.php that aborts `wp site-health` below WordPress 5.4.
+    # baseline that wp-cli-tests configures, regardless of the versions this package
+    # actually supports. It only recognizes function_exists() and method_exists()
+    # guards, and not on static calls, so it cannot see either the `before_invoke`
+    # check in site-health-command.php that aborts below WordPress 5.2 or the runtime
+    # fallbacks in the command itself.
     #
     # The entries below match on the message as well as the identifier, naming both the
-    # methods and their version, so a call to anything introduced after WordPress 5.4
-    # keeps being reported. `WP_Site_Health::get_test_authorization_header()` is
-    # WordPress 5.6 and is guarded with method_exists() instead, precisely because a
-    # file-wide ignore here would have hidden it.
-    -
-      identifier: WPCompat.methodNotAvailable
-      message: '#^WP_Site_Health::get_instance\(\) is only available since WordPress version 5\.4\.0\.$#'
-      path: src/SiteHealthCommand.php
+    # methods and their version, so a call to anything newer keeps being reported.
+    # `WP_Site_Health::get_test_authorization_header()` is WordPress 5.6 and is guarded
+    # with method_exists() rather than ignored, precisely because a file-wide ignore
+    # here would have hidden it.
+
+    # `WP_Site_Health` and `WP_Debug_Data` arrived in WordPress 5.2, which is what the
+    # `before_invoke` check requires.
     -
       identifier: WPCompat.methodNotAvailable
       message: '#^(WP_Debug_Data::(debug_data|get_sizes)|WP_Site_Health::get_tests)\(\) is only available since WordPress version 5\.2\.0\.$#'
+      path: src/SiteHealthCommand.php
+
+    # `WP_Site_Health::get_instance()` is WordPress 5.4, above that check. The
+    # constructor falls back to instantiating the class directly on 5.2 and 5.3, but
+    # wp-compat does not recognize method_exists() guards on static calls, so the call
+    # is still reported.
+    -
+      identifier: WPCompat.methodNotAvailable
+      message: '#^WP_Site_Health::get_instance\(\) is only available since WordPress version 5\.4\.0\.$#'
       path: src/SiteHealthCommand.php

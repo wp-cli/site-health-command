@@ -15,10 +15,10 @@ if ( file_exists( $wpcli_site_health_autoloader ) ) {
 }
 
 $wpcli_site_health_before_invoke = static function () {
-	// SiteHealthCommand::__construct() calls WP_Site_Health::get_instance(),
-	// which was only introduced in WordPress 5.4.
-	if ( \WP_CLI\Utils\wp_version_compare( '5.4', '<' ) ) {
-		WP_CLI::error( 'Requires WordPress 5.4 or greater.' );
+	// Site Health, and the WP_Site_Health and WP_Debug_Data classes this command is
+	// built on, were introduced in WordPress 5.2.
+	if ( \WP_CLI\Utils\wp_version_compare( '5.2', '<' ) ) {
+		WP_CLI::error( 'Requires WordPress 5.2 or greater.' );
 	}
 };
 
