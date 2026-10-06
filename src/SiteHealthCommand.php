@@ -22,7 +22,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 	private $instance;
 
 	/**
-	 * @var array<string, array{label: string, description: string, show_count: bool, private: bool, fields: array<string, array{label: string, value: mixed, debug: string, private: bool}>}>  $info Debug info.
+	 * @var array<string, array{label: string, description: string, show_count: bool, private: bool, fields: array<string, array{label: string, value: mixed, debug: string, private: bool}>}>|null $info Debug info, once it was collected.
 	 */
 	private $info;
 
@@ -50,8 +50,22 @@ class SiteHealthCommand extends WP_CLI_Command {
 		} else {
 			$this->instance = new WP_Site_Health();
 		}
+	}
 
-		$this->info = WP_Debug_Data::debug_data();
+	/**
+	 * Returns the debug info, collecting it on first use.
+	 *
+	 * Collecting it takes a while, and only the `info` and `list-info-sections`
+	 * subcommands need it.
+	 *
+	 * @return array<string, array{label: string, description: string, show_count: bool, private: bool, fields: array<string, array{label: string, value: mixed, debug: string, private: bool}>}> Debug info.
+	 */
+	private function get_info() {
+		if ( null === $this->info ) {
+			$this->info = WP_Debug_Data::debug_data();
+		}
+
+		return $this->info;
 	}
 
 	/**
@@ -317,7 +331,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 	private function get_sections() {
 		$sections = [];
 
-		foreach ( $this->info as $info_key => $info_item ) {
+		foreach ( $this->get_info() as $info_key => $info_item ) {
 			$sections[] = [
 				'label'   => $info_item['label'],
 				'section' => $info_key,
@@ -336,7 +350,9 @@ class SiteHealthCommand extends WP_CLI_Command {
 	private function get_section_info( $section ) {
 		$details = [];
 
-		if ( ! isset( $this->info[ $section ] ) ) {
+		$info = $this->get_info();
+
+		if ( ! isset( $info[ $section ] ) ) {
 			return $details;
 		}
 
@@ -345,7 +361,7 @@ class SiteHealthCommand extends WP_CLI_Command {
 			$sizes_data = WP_Debug_Data::get_sizes();
 		}
 
-		foreach ( $this->info[ $section ]['fields'] as $field_key => $field ) {
+		foreach ( $info[ $section ]['fields'] as $field_key => $field ) {
 			$item = [];
 
 			$item['field']   = $field_key;
